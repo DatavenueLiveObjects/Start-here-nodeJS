@@ -1,0 +1,5 @@
+MQTT.js - version 2.0.1
+
+Copyright (c) MQTT.js contributors and Adam Rudd.
+
+MQTT.js distributed under the terms of MIT (https://github.com/mqttjs/MQTT.js/blob/master/LICENSE.md)
