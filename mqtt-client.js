@@ -9,11 +9,11 @@
  /*jshint esversion: 6 */
 
 var mqtt = require('mqtt');
-const url = "mqtt://liveobjects.orange-business.com:1883";
-const apiKey = "<<< REPLACE WITH valid API key value with Application profile>>>";
+const url = process.env.LO_MQTT_ENDPOINT || "mqtt://liveobjects.orange-business.com:1883";
+const apiKey = process.env.LO_MQTT_APPLICATION_API_KEY || "<<< REPLACE WITH valid API key value with Application profile>>>";
 
 /** Subscription for a fifo (persisted) **/
-const mqttTopic = "fifo/alarm";
+const mqttTopic = process.env.LO_MQTT_TOPIC || "fifo/alarm";
 
 var client;
 
@@ -32,7 +32,11 @@ function clientConnect() {
     client.on("connect", function() {
       console.log("MQTT::Connected");
 
-      client.subscribe(mqttTopic)
+      client.subscribe(mqttTopic, function(err) {
+            if (err) {
+                logger.info("FAILED to subscribe on ["+mqttTopic+"]> " + err);// check mqtt rate limit
+            }
+      });
       console.log("MQTT::Subscribed to topic:", mqttTopic);
     })
 
@@ -44,6 +48,11 @@ function clientConnect() {
     client.on("message", function (topic, message) {
         onMessage(topic, message);
     });
+
+    client.on('close', function () {
+        logger.info("MQTT::Connection closed");
+    });
+
 }
 
 console.log("CTRL + C to quit");
