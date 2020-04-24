@@ -45,8 +45,16 @@ function validMqttUrl(url) {
  return /^(mqtt[s]?):\/\/(.*)\:[0-9]{2,6}$/.test(url) || /^(ws[s]?):\/\/(.*)\:[0-9]{2,6}\/mqtt$/.test(url);
 }
 
+function validConfig() {
+    if (process.env.LO_MQTT_ENDPOINT && process.env.LO_MQTT_DEVICE_API_KEY && process.env.LO_MQTT_DEVICE_ID
+      && validMqttUrl(process.env.LO_MQTT_ENDPOINT)) {
+        return true;
+    }
+    return !(process.argv.length < 3 || !validMqttUrl(process.argv[2]));
+}
+
 // reading arguments
-if (process.argv.length < 3 || !validMqttUrl(process.argv[2])) {
+if (!validConfig()) {
     console.log("MQTT script simulating a device: ");
     console.log("");
     console.log("usage: node mqtt-deviceMode.js <serverURL> <apiKey> <deviceId>");
@@ -59,9 +67,9 @@ if (process.argv.length < 3 || !validMqttUrl(process.argv[2])) {
     console.log("   node ./mqtt-deviceMode.js mqtts://liveobjects.orange-business.com:8883 MyApiKeyHere myNodeJS");
     return;
 }
-var serverURL = process.argv[2];
-var apiKey = process.argv[3];
-var deviceId = process.argv[4];
+var serverURL = process.env.LO_MQTT_ENDPOINT || process.argv[2];
+var apiKey = process.env.LO_MQTT_DEVICE_API_KEY || process.argv[3];
+var deviceId = process.env.LO_MQTT_DEVICE_ID ||process.argv[4];
 
 //~ calculated with arguments
 var deviceUrn = "urn:lo:nsid:"+deviceNamespace+":"+deviceId;
@@ -115,6 +123,7 @@ var configFailure=0;
 var resourceFailure=0;
 var withDeviceError = false;
 var withDownloadStep = false;
+var withDownloadExit = false;
 var withNoAnswer = false;
 
 var connectionCount=0;
@@ -157,7 +166,7 @@ function deviceInfo() {
     console.log("    handled " + handledConfig + " cfg, " +handledCommands + " cmd " + handledResource + " rsc");
   }
   if (withDownloadStep) {
-    console.log("    resUpd with download step");
+    console.log("    resUpd with download step" + (withDownloadExit ? " crash (enforce exit) !" : ""));
   }
 }
 
@@ -208,7 +217,7 @@ function publishDeviceData() {
     client.publish(topicData,msgDataStr);
 }
 
-function downloadFile(resourceId, resourceNewVersion, resourceUrl, resourceSize, resourceMd5, endDownloadCb) {
+function downloadFile(resourceId, resourceNewVersion, resourceUrl, resourceSize, resourceMd5, downloadError, endDownloadCb) {
     logger.debug("download resource "+ resourceId + " version " + resourceNewVersion + " from " + resourceUrl);
     var file = fs.createWriteStream("lastfirmware.raw");
     http.get(resourceUrl, function(response) {
@@ -217,6 +226,12 @@ function downloadFile(resourceId, resourceNewVersion, resourceUrl, resourceSize,
               logger.debug("download done");
               file.close(endDownloadCb);  // close() is async, call endDownloadCb after close completes.
         });
+        if (downloadError) {
+          setTimeout(function() {
+             logger.debug("this is an error while downloading firmware: enforce exit()");
+             process.exit();
+          }, 10)
+        }
     });
 }
 
@@ -330,7 +345,7 @@ function handleResourceUpdate(message) {
 
       if (withDownloadStep) {
           // download resource
-          downloadFile(resourceId, resourceNewVersion, resourceUrl, resourceSize, resourceMd5, function() {
+          downloadFile(resourceId, resourceNewVersion, resourceUrl, resourceSize, resourceMd5, withDownloadExit, function() {
               simulateResourceUpdateDone(resourceId, resourceNewVersion);
           });
       } else {
@@ -344,7 +359,7 @@ function clientConnect() {
     logger.info(deviceUrn + " connect to " + serverURL);
     client = mqtt.connect(serverURL, {
         clientId: deviceUrn,
-        username: "json+device+key",
+        username: "json+device",
         password: apiKey,
         protocolId: 'MQIsdp',
         protocolVersion: 3,
@@ -427,6 +442,7 @@ function menu() {
   console.log("    d  toggle resource update failure custom device error");
   console.log("    n  toggle resource update failure no answer");
   console.log("    f  toggle resource update download step");
+  console.log("    z  enforce resource update download crash");
   console.log("    i  display device info");
   console.log("    x  display device internal info");
   console.log("    o  send current resource message");
@@ -456,6 +472,7 @@ process.stdin.on('keypress', (str, key) => {
     case 'r': resourceFailure++; console.log("."); break;
     case 'd': withDeviceError = !withDeviceError; console.log("."); break;
     case 'f': withDownloadStep = !withDownloadStep; console.log("."); break;
+    case 'z': withDownloadStep = true; withDownloadExit = !withDownloadExit; console.log("."); break;
     case 'n': withNoAnswer = !withNoAnswer; console.log("."); break;
     case 'o': publishDeviceResources(); break;
     case 'm': publishDeviceData(); break;

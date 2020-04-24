@@ -10,3 +10,6 @@ package-lock.json
 
 # user custom config
 *.dontpush.*
+
+# app temp files
+lastfirmware.raw
