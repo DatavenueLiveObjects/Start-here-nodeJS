@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Orange-OpenSource/LiveObjects-samples-nodejs#readme",
   "dependencies": {
     "log4js": "^6.4.0",
-    "mqtt": "^4.2.8"
+    "mqtt": "^4.2.8",
+    "node-global-proxy": "^1.0.1"
   }
 }
