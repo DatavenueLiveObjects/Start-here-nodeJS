@@ -18,3 +18,8 @@ export LO_MQTT_APPLICATION_API_KEY=__PutMySecretAPIKeyValueHere__
 
 # mqtt device identifier
 export LO_MQTT_DEVICE_ID=lo-mqtt-device
+
+
+# proxy definition
+# export LO_MQTT_HTTP_PROXY='http://your.http.proxy:8080/'
+# export LO_MQTT_HTTPS_PROXY='http://your.http.proxy:8080/'
