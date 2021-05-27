@@ -241,7 +241,7 @@ function forceReconnect() {
   logger.info('forceReconnect');
   force = true;
   client.end(force, function () {
-    clientConnect();
+    clientConnect(true);
   });
 }
 
@@ -276,7 +276,25 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ *
+ * @param [[number,number], [number, number]] geolocs : the square in wich the device must be localized
+ * @param {*} nb : number of localized device to generate
+ */
 async function generateGeoloc(geolocs, nb = 1) {
+  if (
+    geolocs.length !== 2 ||
+    geolocs[0].length !== 2 ||
+    geolocs[1].length !== 2 ||
+    'number' !== typeof geolocs[0][0] ||
+    'number' !== typeof geolocs[0][1] ||
+    'number' !== typeof geolocs[1][0] ||
+    'number' !== typeof geolocs[1][1]
+  ) {
+    throw new Error(
+      'geolocs input must be a square of locations in which the device will be localized'
+    );
+  }
   for (let index = 0; index < nb; index++) {
     deviceUrn =
       'urn:lo:nsid:' +
@@ -284,7 +302,7 @@ async function generateGeoloc(geolocs, nb = 1) {
       ':' +
       deviceId +
       '_' +
-      Math.ceil(Math.random() * 100000000000);
+      Math.ceil(Math.random() * 100000000000); // we generate a new device with a random id
 
     var count = connectionCount;
     forceReconnect();
@@ -292,6 +310,9 @@ async function generateGeoloc(geolocs, nb = 1) {
       await sleep(500);
     }
     await sleep(1000);
+    /**
+     * The geoloc of the device is randonly in the square of geolocs
+     */
     geoloc = [
       geolocs[1][0] + (geolocs[0][0] - geolocs[1][0]) * Math.random(),
       geolocs[0][1] + (geolocs[1][1] - geolocs[0][1]) * Math.random(),
@@ -351,7 +372,7 @@ function handleConfigUpdate(message) {
     // hack a wrong value for a requested parameter
     var msgWrongCfg = request;
     var firstParam = Object.keys(request.cfg)[0];
-    msgWrongCfg.cfg[firstParam]['v'] = 666;
+    msgWrongCfg.cfg[firstParam].v = 666;
 
     var msgWrongCfgStr = JSON.stringify(msgWrongCfg);
     logger.info('FAILED config [' + topicConfig + ']> ' + msgWrongCfgStr);
@@ -386,7 +407,7 @@ function handleCommand(message) {
 
 function simulateResourceUpdateDone(resourceId, resourceNewVersion) {
   // act version update internally
-  deviceResources.rsc[resourceId]['v'] = resourceNewVersion;
+  deviceResources.rsc[resourceId].v = resourceNewVersion;
   // publish new version
   publishDeviceResources();
 }
@@ -465,8 +486,27 @@ function handleResourceUpdate(message) {
   handledResource++;
 }
 
-function clientConnect() {
+function clientProxy() {
+  const http = process.env.LO_MQTT_HTTP_PROXY;
+  const https = process.env.LO_MQTT_HTTPS_PROXY;
+  if (http || https) {
+    logger.info('Used proxy http: ' + http);
+    logger.info('Used proxy https: ' + https);
+    const proxy = require('node-global-proxy').default;
+
+    proxy.setConfig({
+      http: http,
+      https: https,
+    });
+    proxy.start();
+  }
+}
+
+function clientConnect(byPassInit = false) {
   logger.info(deviceUrn + ' connect to ' + serverURL);
+  if (!byPassInit) {
+    clientProxy();
+  }
   client = mqtt.connect(serverURL, {
     clientId: deviceUrn,
     username: 'json+device',
@@ -484,19 +524,19 @@ function clientConnect() {
     connectionCount++;
     reconnectRetry = 0;
 
-    /*
-        publishDeviceConfig();
+    if (!byPassInit) {
+      publishDeviceConfig();
 
-        subscribeTopic(topicConfigUpdate);
+      subscribeTopic(topicConfigUpdate);
 
-        publishDeviceData();
+      publishDeviceData();
 
-        publishDeviceResources();
+      publishDeviceResources();
 
-        subscribeTopic(topicCommand);
+      subscribeTopic(topicCommand);
 
-        subscribeTopic(topicResourceUpd);
-        */
+      subscribeTopic(topicResourceUpd);
+    }
 
     logger.info("type 'h' to see help");
   });
@@ -560,7 +600,7 @@ function menu() {
   console.log('    o  send current resource message');
   console.log('    m  send data message');
   console.log('    e  generate new device in Europe');
-  console.log('    n  generate new device in France');
+  console.log('    l  generate new device in France');
   console.log('    g  generate new device in Ile de France');
   console.log('    a  generate 100 new devices in Lyon');
   console.log('    b  generate 100 new devices in France');
@@ -619,7 +659,7 @@ process.stdin.on('keypress', (str, key) => {
       withDownloadExit = !withDownloadExit;
       console.log('.');
       break;
-    case 'l':
+    case 'n':
       withNoAnswer = !withNoAnswer;
       console.log('.');
       break;
@@ -632,7 +672,7 @@ process.stdin.on('keypress', (str, key) => {
     case 'e':
       generateGeoloc(geolocsEurop);
       break;
-    case 'n':
+    case 'l':
       generateGeoloc(geolocsFrance);
       break;
     case 'g':
@@ -667,14 +707,6 @@ process.stdin.on('keypress', (str, key) => {
       );
   }
 });
-
-const proxy = require('node-global-proxy').default;
-
-proxy.setConfig({
-  http: 'http://proxy.rd.francetelecom.fr:8080/',
-  https: 'http://proxy.rd.francetelecom.fr:8080/',
-});
-proxy.start();
 
 // Main entry-point
 clientConnect();
