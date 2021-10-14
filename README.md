@@ -1,6 +1,9 @@
 # Live Objects MQTT Client
 
-This project includes Live Objects Client code samples for the MQTT protocol, written in JavaScript for node.js
+This project includes **Live Objects Client code samples for the MQTT protocol**.
+- LiveObjects [official help](https://liveobjects.orange-business.com/#/cms/documentation-faq) includes [a dev. guide mqtt section](https://liveobjects.orange-business.com/doc/html/lo_manual_v2.html#MQTT_API)
+- Samples are written in JavaScript for node.js.
+- Samples require minimal common environment described in "Quick start" below.
 
 ## Quick start
 
@@ -26,38 +29,18 @@ $ git clone https://github.com/Orange-OpenSource/LiveObjects-samples-nodejs.git
 - source it
 > . ./initEnv.dontpush.sh
 
+### Start using samples
+Go to sample dedicated documentation.
 
-### Sample retrieve a data message from a FIFO using a mqtt client
-Pre-requisites before running this sample :
-1. you MUST create a FIFO called "alarm" in your LO account (see [lo_manual_v2 FIFO](https://liveobjects.orange-business.com/doc/html/lo_manual_v2.html#FIFO))
-2. you MUST create an action policy to route your messages to the "alarm" FIFO (see [lo_manual_v2 MESSAGE_ROUTING](https://liveobjects.orange-business.com/doc/html/lo_manual_v2.html#MESSAGE_ROUTING))
-
-Open the mqtt-client.js
-
-1. Replace the apiKey with yours
-2. Configure your mqttTopic depending on your needs, subscriptions for all devices PubSub, one specific device PubSub or FIFO
-3. Run the mqtt-client.js:
-    > node mqtt-client.js
-
-
-### Sample Mqtt DeviceMode client
-
-Step 1 : Run the mqtt-deviceMode.js
-
-- via private environment
-    > node mqtt-deviceMode.js 
-- or on command line via mqtts
-    > node mqtt-deviceMode.js mqtts://liveobjects.orange-business.com:8883 YourApiKeyValueHere SampleLODemo
-- or on command line via secure websocket
-    > node mqtt-deviceMode.js wss://liveobjects.orange-business.com:443/mqtt YourApiKeyValueHere SampleLODemo
-
-Step 2 : Type `h` to see device help menu or `q` to disconnect.
-
-For more details about connection, cf. [lo_manual_v2 MQTT_API](https://liveobjects.orange-business.com/doc/html/lo_manual_v2.html#MQTT_API)
+The samples are:
+- [lo-device](./samples/lo-device/README.md) - a mqtt client using `device mode`, this sample is able to connect,
+  receive command, receive firmware updates and config. This device can send data messages too.
+- [lo-device](./samples/lo-device/README.md) - a mqtt client using `application mode`, this sample is able to listen
+  a given fifo.
 
 ## License
 
-Copyright (c) 2015 — 2019 Orange
+Copyright (c) 2015 — 2021 Orange
 
 This code is released under the BSD3 license. See the `LICENSE` file for more information.
 

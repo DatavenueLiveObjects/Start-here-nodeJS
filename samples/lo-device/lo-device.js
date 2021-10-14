@@ -12,28 +12,28 @@
 /*jshint esversion: 6 */
 
 // requirements
-var http = require('http');// download firmware
-var mqtt = require('mqtt');
-var fs = require('fs');
-var log4js = require('log4js');
+const http = require('http');// download firmware
+const mqtt = require('mqtt');
+const fs = require('fs');
+const log4js = require('log4js');
 const readline = require('readline');
 
 // logging
-var logger = log4js.getLogger();
+const logger = log4js.getLogger();
 logger.setLevel('DEBUG');
 
 // device
-var deviceNamespace = "NodeJS";
+const deviceNamespace = "NodeJS";
 // Topic Mqtt Device Mode
-var topicConfigUpdate = "dev/cfg/upd";
-var topicConfig = "dev/cfg";
-var topicData = "dev/data";
-var topicResource = "dev/rsc";
-var topicCommand = "dev/cmd";
-var topicCommandRsp = "dev/cmd/res";
-var topicResourceUpd = "dev/rsc/upd";
-var topicResourceUpdResp = "dev/rsc/upd/res";
-var topicResourceUpdErr = "dev/rsc/upd/err";
+const topicConfigUpdate = "dev/cfg/upd";
+const topicConfig = "dev/cfg";
+const topicData = "dev/data";
+const topicResource = "dev/rsc";
+const topicCommand = "dev/cmd";
+const topicCommandRsp = "dev/cmd/res";
+const topicResourceUpd = "dev/rsc/upd";
+const topicResourceUpdResp = "dev/rsc/upd/res";
+const topicResourceUpdErr = "dev/rsc/upd/err";
 
 // number of connect retries allowed
 const MAX_CONNECT_RETRIES=2;
@@ -69,7 +69,7 @@ if (!validConfig()) {
 }
 var serverURL = process.env.LO_MQTT_ENDPOINT || process.argv[2];
 var apiKey = process.env.LO_MQTT_DEVICE_API_KEY || process.argv[3];
-var deviceId = process.env.LO_MQTT_DEVICE_ID ||process.argv[4];
+var deviceId = process.env.LO_MQTT_DEVICE_ID || process.argv[4];
 
 //~ calculated with arguments
 var deviceUrn = "urn:lo:nsid:"+deviceNamespace+":"+deviceId;
@@ -138,7 +138,7 @@ function getDeviceDataMessage() {
         "s":   deviceUrn,
         "ts":  now,
         "m":   messageModel,
-        "loc": [45.4535, 4.5032],
+        "loc": [45.75591408213686, 4.837523788372138],
         "v": {
             "temp":     12.75,
             "humidity": 62.1,
@@ -178,9 +178,12 @@ function deviceInfoExtra() {
 
 function bye() {
     console.log("bye");
+    if (client) {
+      client.end(true, {}, () => process.exit());
+      return;
+    }
     process.exit();
 }
-
 function forceReconnect() {
     logger.info("forceReconnect");
     force = true;
