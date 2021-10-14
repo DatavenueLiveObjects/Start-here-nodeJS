@@ -35,7 +35,7 @@ Go to sample dedicated documentation.
 The samples are:
 - [lo-device](./samples/lo-device/README.md) - a mqtt client using `device mode`, this sample is able to connect,
   receive command, receive firmware updates and config. This device can send data messages too.
-- [lo-device](./samples/lo-device/README.md) - a mqtt client using `application mode`, this sample is able to listen
+- [lo-application](./samples/lo-application/README.md) - a mqtt client using `application mode`, this sample is able to listen
   a given fifo.
 
 ## License
