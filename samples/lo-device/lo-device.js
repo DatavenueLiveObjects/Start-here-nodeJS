@@ -20,7 +20,7 @@ const readline = require('readline');
 
 // logging
 const logger = log4js.getLogger();
-logger.setLevel('DEBUG');
+logger.level = 'DEBUG';
 
 // device
 const deviceNamespace = "NodeJS";
