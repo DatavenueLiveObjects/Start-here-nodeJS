@@ -5,9 +5,6 @@
 # Npm
 node_modules/
 
-# application generated
-package-lock.json
-
 # user custom config
 *.dontpush.*
 
