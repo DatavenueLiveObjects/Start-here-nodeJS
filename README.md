@@ -1,4 +1,5 @@
 # Live Objects MQTT Client
+[![scheduled npm audit](https://github.com/DatavenueLiveObjects/Start-here-nodeJS/actions/workflows/audit.yml/badge.svg)](https://github.com/DatavenueLiveObjects/Start-here-nodeJS/actions/workflows/audit.yml)
 
 This project includes **Live Objects Client code samples for the MQTT protocol**.
 - LiveObjects [official help](https://liveobjects.orange-business.com/#/cms/documentation-faq) includes [a dev. guide mqtt section](https://liveobjects.orange-business.com/doc/html/lo_manual_v2.html#MQTT_API)
