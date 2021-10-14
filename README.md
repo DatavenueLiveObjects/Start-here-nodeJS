@@ -12,7 +12,7 @@ This project includes **Live Objects Client code samples for the MQTT protocol**
 Clone this repository from GitHub:
 
 ```
-$ git clone https://github.com/Orange-OpenSource/LiveObjects-samples-nodejs.git
+$ git clone https://github.com/DatavenueLiveObjects/Start-here-nodeJS
 ```
 
 ### Prerequisites
