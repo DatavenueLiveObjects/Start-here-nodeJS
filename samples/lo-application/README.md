@@ -15,7 +15,7 @@ Pre-requisites before running this sample :
 
 ### Step 2 : Run the device
 
-> cd samples/lo-device
+> cd samples/lo-application
 
 - via private environment (cf. [parent Readme](../../README.md))
   > node lo-application.js 
