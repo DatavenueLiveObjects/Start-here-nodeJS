@@ -20,7 +20,14 @@ var client;
 function clientConnect() {
     /** connect **/
     console.log(`MQTT::Connecting to ${url}`);
-    client  = mqtt.connect(url, {username:"application", password:apiKey, keepAlive:30});
+    client  = mqtt.connect(url, {
+        username:"application",
+        password:apiKey,
+        protocolId: 'MQIsdp',
+        protocolVersion: 3,
+        rejectUnauthorized : false,
+        keepAlive:30
+    });
 
     /** client on connect **/
     client.on("connect", function() {
