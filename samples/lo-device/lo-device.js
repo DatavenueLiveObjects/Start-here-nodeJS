@@ -12,12 +12,13 @@
 /*jshint esversion: 6 */
 
 // requirements
-const http = require('http'); // download firmware
+const Axios = require('axios');
 const mqtt = require('mqtt');
 const fs = require('fs');
 const log4js = require('log4js');
 const readline = require('readline');
-const { disconnect } = require('process');
+
+const common = require('./Common.js');
 
 // logging
 const logger = log4js.getLogger();
@@ -60,22 +61,24 @@ const MAX_CONNECT_RETRIES = 2;
 const MQTT_RECONNECT_PERIOD_MS = 1;
 
 function validMqttUrl(url) {
-  return (
-    /^(mqtt[s]?):\/\/(.*)\:[0-9]{2,6}$/.test(url) ||
-    /^(ws[s]?):\/\/(.*)\:[0-9]{2,6}\/mqtt$/.test(url)
-  );
+ return /^(mqtt[s]?):\/\/(.*)\:[0-9]{2,6}$/.test(url) || /^(ws[s]?):\/\/(.*)\:[0-9]{2,6}(\/mqtt)?$/.test(url);
 }
 
 function validConfig() {
-  if (
-    process.env.LO_MQTT_ENDPOINT &&
-    process.env.LO_MQTT_DEVICE_API_KEY &&
-    process.env.LO_MQTT_DEVICE_ID &&
-    validMqttUrl(process.env.LO_MQTT_ENDPOINT)
-  ) {
-    return true;
-  }
-  return !(process.argv.length < 3 || !validMqttUrl(process.argv[2]));
+    if (process.env.LO_MQTT_ENDPOINT) {
+      if (!process.env.LO_MQTT_DEVICE_API_KEY) {
+        console.log("please set LO_MQTT_DEVICE_API_KEY");
+      }
+      if (!process.env.LO_MQTT_DEVICE_ID) {
+        console.log("please set LO_MQTT_DEVICE_ID");
+      }
+      if (!validMqttUrl(process.env.LO_MQTT_ENDPOINT)) {
+        console.log("please verify LO_MQTT_ENDPOINT", process.env.LO_MQTT_ENDPOINT);
+      }
+      return process.env.LO_MQTT_DEVICE_API_KEY && process.env.LO_MQTT_DEVICE_ID && validMqttUrl(process.env.LO_MQTT_ENDPOINT);
+    }
+    // else rely on arguments instead of env
+    return !(process.argv.length < 3 || !validMqttUrl(process.argv[2]));
 }
 
 // reading arguments
@@ -110,44 +113,8 @@ var deviceId = process.env.LO_MQTT_DEVICE_ID || process.argv[4];
 var deviceUrn = 'urn:lo:nsid:' + deviceNamespace + ':' + deviceId;
 var nodeResponse = 'this is an answer from nodeJs client';
 
-var deviceResources = {
-  rsc: {
-    X11_firmware: {
-      v: '1.2',
-      m: {
-        username: '78723-672-1232',
-      },
-    },
-    X11_modem_driver: {
-      v: '4.0.M2',
-    },
-  },
-};
-
-var deviceConfig = {
-  cfg: {
-    paramString: {
-      t: 'str',
-      v: 'DEBUG',
-    },
-    paramRaw: {
-      t: 'bin',
-      v: 'Nzg3ODY4Ng==',
-    },
-    paramInt32: {
-      t: 'i32',
-      v: -15,
-    },
-    paramUInt32: {
-      t: 'u32',
-      v: 0,
-    },
-    paramFloat: {
-      t: 'f64',
-      v: 15.06,
-    },
-  },
-};
+var deviceResources = common.loadJsonResource("./data/initialResource.json");
+var deviceConfig =  common.loadJsonResource("./data/initialConfig.json");
 
 //~ work attributes
 var client;
@@ -156,8 +123,8 @@ var reconnectRetry = 0;
 var commandNoAnswer = 0;
 var configFailure = 0;
 var resourceFailure = 0;
-var withDeviceError = false;
-var withDownloadStep = false;
+var withDeviceError = process.env.LO_MQTT_DEFAULT_WITH_DEVICE_ERROR === 'true' | false;
+var withDownloadStep = true;
 var withDownloadExit = false;
 var withNoAnswer = false;
 
@@ -328,7 +295,38 @@ async function generateGeoloc(geolocs, nb = 1) {
   }
 }
 
-function downloadFile(
+async function downloadFile(fileUrl, outputLocationPath) {
+  const writer = fs.createWriteStream(outputLocationPath);
+
+  return Axios({
+    method: 'get',
+    url: fileUrl,
+    responseType: 'stream',
+  }).then(response => {
+
+    //ensure that the user can call `then()` only when the file has
+    //been downloaded entirely.
+
+    return new Promise((resolve, reject) => {
+      response.data.pipe(writer);
+      let error = null;
+      writer.on('error', err => {
+        error = err;
+        writer.close();
+        reject(err);
+      });
+      writer.on('close', () => {
+        if (!error) {
+          resolve(true);
+        }
+        //no need to call the reject here, as it will have been called in the
+        //'error' stream;
+      });
+    });
+  });
+}
+
+function downloadFileStep(
   resourceId,
   resourceNewVersion,
   resourceUrl,
@@ -337,30 +335,26 @@ function downloadFile(
   downloadError,
   endDownloadCb
 ) {
-  logger.debug(
-    'download resource ' +
-      resourceId +
-      ' version ' +
-      resourceNewVersion +
-      ' from ' +
-      resourceUrl
-  );
-  var file = fs.createWriteStream('lastfirmware.raw');
-  http.get(resourceUrl, function (response) {
-    response.pipe(file);
-    file.on('finish', function () {
-      logger.debug('download done');
-      file.close(endDownloadCb); // close() is async, call endDownloadCb after close completes.
-    });
-    if (downloadError) {
-      setTimeout(function () {
-        logger.debug(
-          'this is an error while downloading firmware: enforce exit()'
-        );
-        process.exit();
-      }, 10);
-    }
-  });
+  logger.debug(`download resource ${resourceId} version ${resourceNewVersion} from ${resourceUrl}`);
+  downloadFile(resourceUrl, 'lastFirmware.raw')
+      .catch(err => {// download issues are just reported as warn
+          var details = "";
+          if ("EPROTO" === err.code) {
+            details += " protocol issue (seems that resource server don't match url scheme).";
+          }
+          logger.warn(`Download error code:${err.code} errno:${err.errno} ${details}`);
+      })
+      .then(result => {
+          logger.debug('download done');
+          if (downloadError) {
+            setTimeout(() => {
+              logger.debug('simulate an error while downloading firmware: enforce exit()');
+              process.exit();
+            }, 10);
+          }
+          endDownloadCb();
+      });
+
 }
 
 function handleConfigUpdate(message) {
@@ -468,7 +462,7 @@ function handleResourceUpdate(message) {
 
     if (withDownloadStep) {
       // download resource
-      downloadFile(
+      downloadFileStep(
         resourceId,
         resourceNewVersion,
         resourceUrl,
@@ -487,17 +481,11 @@ function handleResourceUpdate(message) {
 }
 
 function clientProxy() {
-  const http = process.env.LO_MQTT_HTTP_PROXY;
+  const http  = process.env.LO_MQTT_HTTP_PROXY;
   const https = process.env.LO_MQTT_HTTPS_PROXY;
   if (http || https) {
-    logger.info('Used proxy http: ' + http);
-    logger.info('Used proxy https: ' + https);
     const proxy = require('node-global-proxy').default;
-
-    proxy.setConfig({
-      http: http,
-      https: https,
-    });
+    proxy.setConfig({http, https});
     proxy.start();
   }
 }
@@ -505,7 +493,7 @@ function clientProxy() {
 function clientConnect(byPassInit = false) {
   logger.info(deviceUrn + ' connect to ' + serverURL);
   if (!byPassInit) {
-    clientProxy();
+      clientProxy();
   }
   client = mqtt.connect(serverURL, {
     clientId: deviceUrn,
@@ -531,7 +519,9 @@ function clientConnect(byPassInit = false) {
 
       publishDeviceData();
 
-      publishDeviceResources();
+      if (process.env.LO_MQTT_SKIP_STARTUP_PUBLISH !== "true") {
+        publishDeviceResources();
+      }
 
       subscribeTopic(topicCommand);
 
@@ -613,100 +603,104 @@ function menu() {
 // Key input
 readline.emitKeypressEvents(process.stdin);
 process.stdin.setRawMode(true);
-process.stdin.on('keypress', (str, key) => {
-  if (key.name == 'q' || (key && key.ctrl && key.name == 'c')) {
-    bye();
-    return;
-  }
-  if (str == '*') {
-    forceReconnect();
-    return;
-  }
-  switch (
-    key.name // input menu key dispatcher
-  ) {
-    case 'h':
-      menu();
-      break;
-    case 'i':
-      deviceInfo();
-      break;
-    case 'x':
-      deviceInfoExtra();
-      break;
-    case 'k':
-      commandNoAnswer++;
-      console.log('.');
-      break;
-    case 'c':
-      configFailure++;
-      console.log('.');
-      break;
-    case 'r':
-      resourceFailure++;
-      console.log('.');
-      break;
-    case 'd':
-      withDeviceError = !withDeviceError;
-      console.log('.');
-      break;
-    case 'f':
-      withDownloadStep = !withDownloadStep;
-      console.log('.');
-      break;
-    case 'z':
-      withDownloadStep = true;
-      withDownloadExit = !withDownloadExit;
-      console.log('.');
-      break;
-    case 'n':
-      withNoAnswer = !withNoAnswer;
-      console.log('.');
-      break;
-    case 'o':
-      publishDeviceResources();
-      break;
-    case 'm':
-      publishDeviceData();
-      break;
-    case 'e':
-      generateGeoloc(geolocsEurop);
-      break;
-    case 'l':
-      generateGeoloc(geolocsFrance);
-      break;
-    case 'g':
-      generateGeoloc(geolocsIdf);
-      break;
-    case 'a':
-      generateGeoloc(geolocsLyon, 100);
-      break;
-    case 'b':
-      generateGeoloc(geolocsFrance, 100);
-      break;
-    case 'j':
-      generateGeoloc(geolocsEurop, 100);
-      break;
-    case 'p':
-      generateGeoloc(geolocsEurop, 1000);
-      break;
-    case '*':
+
+process.stdin.on('keypress', (function () {
+  return async (str, key) => {
+    if (key.name === 'q'
+        || (key && key.ctrl && key.name === 'c')) {
+      bye();
+      return;
+    }
+    if (str === '*') {
       forceReconnect();
-      break;
-    case 'return':
-      break; // ignore
-    default:
-      console.log(
-        'unknown command "' +
-          str +
-          '" (ctrl:' +
-          key.ctrl +
-          ' name:' +
-          key.name +
-          ')'
-      );
-  }
-});
+      return;
+    }
+    switch (
+        key.name // input menu key dispatcher
+        ) {
+      case 'h':
+        menu();
+        break;
+      case 'i':
+        deviceInfo();
+        break;
+      case 'x':
+        deviceInfoExtra();
+        break;
+      case 'k':
+        commandNoAnswer++;
+        console.log('.');
+        break;
+      case 'c':
+        configFailure++;
+        console.log('.');
+        break;
+      case 'r':
+        resourceFailure++;
+        console.log('.');
+        break;
+      case 'd':
+        withDeviceError = !withDeviceError;
+        console.log('.');
+        break;
+      case 'f':
+        withDownloadStep = !withDownloadStep;
+        console.log('.');
+        break;
+      case 'z':
+        withDownloadStep = true;
+        withDownloadExit = !withDownloadExit;
+        console.log('.');
+        break;
+      case 'n':
+        withNoAnswer = !withNoAnswer;
+        console.log('.');
+        break;
+      case 'o':
+        publishDeviceResources();
+        break;
+      case 'm':
+        publishDeviceData();
+        break;
+      case 'e':
+        await generateGeoloc(geolocsEurop);
+        break;
+      case 'l':
+        await generateGeoloc(geolocsFrance);
+        break;
+      case 'g':
+        await generateGeoloc(geolocsIdf);
+        break;
+      case 'a':
+        await generateGeoloc(geolocsLyon, 100);
+        break;
+      case 'b':
+        await generateGeoloc(geolocsFrance, 100);
+        break;
+      case 'j':
+        await generateGeoloc(geolocsEurop, 100);
+        break;
+      case 'p':
+        await generateGeoloc(geolocsEurop, 1000);
+        break;
+      case '*':
+        forceReconnect();
+        break;
+      case 'return':
+        break; // ignore
+      default:
+        console.log(
+            'unknown command "' +
+            str +
+            '" (ctrl:' +
+            key.ctrl +
+            ' name:' +
+            key.name +
+            ')'
+        );
+    }
+  };
+})());
 
 // Main entry-point
 clientConnect();

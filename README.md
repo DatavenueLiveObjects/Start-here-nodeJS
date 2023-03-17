@@ -40,6 +40,13 @@ The samples are:
 - [lo-application](./samples/lo-application/README.md) - a mqtt client using `application mode`, this sample is able to listen
   a given fifo.
 
+
+Example:
+````bash
+source ./initEnvLO.dontpush.sh
+node samples/lo-device/lo-device.js
+````
+
 ## License
 
 Copyright (c) 2015 — 2021 Orange
