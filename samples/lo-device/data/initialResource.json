@@ -1,0 +1,16 @@
+{
+  "rsc": {
+    "X11_firmware": {
+      "v": "1.2",
+      "m": {
+        "username": "78723-672-1232"
+      }
+    },
+    "X11_modem_driver": {
+      "v": "4.0.M2"
+    },
+    "X113DevFirmware": {
+      "v": "v1"
+    }
+  }
+}

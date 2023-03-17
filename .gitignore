@@ -9,4 +9,4 @@ node_modules/
 *.dontpush.*
 
 # app temp files
-lastfirmware.raw
+lastFirmware.raw

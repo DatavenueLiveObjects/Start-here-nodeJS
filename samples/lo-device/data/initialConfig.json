@@ -1,0 +1,24 @@
+{
+  "cfg": {
+    "paramString": {
+      "t": "str",
+      "v": "DEBUG"
+    },
+    "paramRaw": {
+      "t": "bin",
+      "v": "Nzg3ODY4Ng=="
+    },
+    "paramInt32": {
+      "t": "i32",
+      "v" : -15
+    },
+    "paramUInt32": {
+      "t": "u32",
+      "v" : 0
+    },
+    "paramFloat": {
+      "t": "f64",
+      "v" : 15.06
+    }
+  }
+}
