@@ -2,10 +2,10 @@
   "name": "lo-mqtt-client",
   "version": "1.0.1",
   "description": "Live Objects MQTT client",
-  "main": "mqtt-client.js",
+  "main": "samples/lo-device/lo-device.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Orange-OpenSource/LiveObjects-samples-nodejs.git"
+    "url": "https://github.com/DatavenueLiveObjects/Start-here-nodeJS.git"
   },
   "keywords": [
     "mqtt",
@@ -16,7 +16,7 @@
   ],
   "author": "Orange-OpenSource",
   "license": "BSD-3",
-  "homepage": "https://github.com/Orange-OpenSource/LiveObjects-samples-nodejs#readme",
+  "homepage": "https://github.com/DatavenueLiveObjects/Start-here-nodeJS#live-objects-mqtt-client",
   "dependencies": {
     "log4js": "^6.4.0",
     "mqtt": "^4.2.8",
