@@ -1,6 +1,6 @@
 {
   "name": "lo-mqtt-client",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Live Objects MQTT client",
   "main": "samples/lo-device/lo-device.js",
   "repository": {
