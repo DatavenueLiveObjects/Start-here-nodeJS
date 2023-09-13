@@ -23,7 +23,7 @@ npm version patch
 * create GitHub release
 ```bash
 gren release
-# exemple to recreate a release v1.0.2 with pull requests having milestone matching "v1.0.2"
-gren release -t "1.0.1".."v1.0.2" -D prs --override
+# exemple to recreate a release v1.0.3 with pull requests between "v1.0.2".."v1.0.3" tags
+gren release -t "v1.0.2".."v1.0.3" -D prs --override
 ```
 [//]: <> (NB: it seems there is an issue to include issues in release note ..? so use PRs as fallback right now)
