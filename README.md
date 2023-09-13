@@ -48,3 +48,7 @@ This code is released under the BSD3 license. See the `LICENSE` file for more in
 ## Contact
 
 * Homepage: [liveobjects.orange-business.com](https://liveobjects.orange-business.com/)
+
+## Contribute
+
+* cf [CONTRIBUTING](CONTRIBUTING.md)
