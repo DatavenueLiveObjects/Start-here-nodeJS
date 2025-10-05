@@ -1,6 +1,5 @@
 # Live Objects MQTT Client
 [![scheduled npm audit](https://github.com/DatavenueLiveObjects/Start-here-nodeJS/actions/workflows/audit.yml/badge.svg)](https://github.com/DatavenueLiveObjects/Start-here-nodeJS/actions/workflows/audit.yml)
-[![Automated Release Notes by gren](https://img.shields.io/badge/%F0%9F%A4%96-release%20notes-00B2EE.svg)](https://github-tools.github.io/github-release-notes/)
 
 This project includes **Live Objects Client code samples for the MQTT protocol**.
 - LiveObjects [official help](https://liveobjects.orange-business.com/#/cms/documentation-faq) includes [a dev. guide mqtt section](https://liveobjects.orange-business.com/doc/html/lo_manual_v2.html#MQTT_API)
@@ -49,7 +48,7 @@ node samples/lo-device/lo-device.js
 
 ## License
 
-Copyright (c) 2015 — 2023 Orange
+Copyright (c) 2015 — 2025 Orange
 
 This code is released under the BSD3 license. See the `LICENSE` file for more information.
 
@@ -59,4 +58,4 @@ This code is released under the BSD3 license. See the `LICENSE` file for more in
 
 ## Contribute
 
-* cf [CONTRIBUTING](CONTRIBUTING.md)
+* cf [CONTRIBUTING](.github/CONTRIBUTING.md)
