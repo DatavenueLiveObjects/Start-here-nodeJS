@@ -19,8 +19,8 @@
   "homepage": "https://github.com/DatavenueLiveObjects/Start-here-nodeJS#live-objects-mqtt-client",
   "dependencies": {
     "axios": "^1.12.2",
-    "log4js": "^6.4.0",
-    "mqtt": "^4.2.8",
+    "log4js": "^6.9.1",
+    "mqtt": "^5.14.1",
     "node-global-proxy": "^1.0.1"
   }
 }
