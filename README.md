@@ -22,13 +22,24 @@ $ git clone https://github.com/DatavenueLiveObjects/Start-here-nodeJS
 2. Install samples dependencies (from package.json, example, https://github.com/mqttjs/MQTT.js)
     > npm install
 
-### Setup your own private environment
+### Set your own private environment
 
 - copy the template in a private file
-> cp initEnv.template.sh initEnv.dontpush.sh
-- edit `initEnv.dontpush.sh`
+
+```bash
+cp initEnv.template.sh initEnv.dontpush.sh
+```
+- edit `initEnv.dontpush.sh` according to your constraints and with your own API KEYS
 - source it
-> . ./initEnv.dontpush.sh
+
+```bash
+source ./initEnv.dontpush.sh
+```
+
+- verify environment
+```bash
+env|grep LO_
+```
 
 ### Start using samples
 Go to sample dedicated documentation.
