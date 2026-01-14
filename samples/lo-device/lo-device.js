@@ -135,6 +135,14 @@ var handledResource = 0;
 var geoloc = [45.4535, 4.5032];
 
 function getDeviceDataMessage() {
+  // Calculate an offset based on the hash of the deviceId
+  let hash = 0;
+  for (let i = 0; i < deviceId.length; i++) {
+    hash = (hash << 5) - hash + deviceId.charCodeAt(i);
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  const deviceOffset = (Math.abs(hash * 10000) % 3001) / 100 - 15; // -15.00 to +15.00
+
   var messageModel = 'nodeDeviceModeV1';
   var now = new Date().toISOString();
   var deviceData = {
@@ -143,8 +151,10 @@ function getDeviceDataMessage() {
     m: messageModel,
     loc: geoloc,
     v: {
-      temp: 12.75,
-      humidity: 62.1,
+      temp:
+        deviceOffset + 12.75 + Math.round((Math.random() * 2 - 1) * 100) / 100, // vary between -1 and +1 the base temp
+      humidity:
+        deviceOffset + 62.1 + Math.round((Math.random() * 2 - 1) * 100) / 100, // vary between -1 and +1 the base humidity
       gpsFix: true,
       gpsSats: [12, 14, 21],
       connectionCount: connectionCount,
