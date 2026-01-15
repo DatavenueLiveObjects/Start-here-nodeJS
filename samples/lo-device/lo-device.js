@@ -134,8 +134,34 @@ var handledCommands = 0;
 var handledResource = 0;
 var geoloc = [45.4535, 4.5032];
 
+/**
+ * Compute a deterministic offset based on the referenceId
+ * @param referenceId: string. The reference id to hash
+ * @param range: number. The maximum absolute value of the offset
+ * @returns number: the offset
+ */
+function computeOffset(referenceId, range = 15) {
+  let hash = 0;
+  for (let i = 0; i < referenceId.length; i++) {
+    hash = (hash << 5) - hash + referenceId.charCodeAt(i);
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return (Math.abs(hash) % (range *2*100 +1)) / 100 - range; // vary between -range and +range
+}
+
+/**
+ * calculate a random noise offset between -range and +range
+ * @param range: number. The maximum absolute value of the noise
+ * @returns number: the noise offset
+ */
+function offsetNoise(range = 2) {
+  return Math.round((Math.random() * 2 - 1) * range * 100) / 100; // vary between -range and +range
+}
+
 function getDeviceDataMessage() {
-  var messageModel = 'nodeDeviceModeV1';
+  const deviceOffset = computeOffset(deviceId, 15);
+
+  var messageModel = "nodeDeviceModeV1";
   var now = new Date().toISOString();
   var deviceData = {
     s: deviceUrn,
@@ -143,8 +169,8 @@ function getDeviceDataMessage() {
     m: messageModel,
     loc: geoloc,
     v: {
-      temp: 12.75,
-      humidity: 62.1,
+      temp: deviceOffset + 12.75 + offsetNoise(1), // vary between -1 and +1 the base temp
+      humidity: deviceOffset + 62.1 + offsetNoise(1), // vary between -1 and +1 the base humidity
       gpsFix: true,
       gpsSats: [12, 14, 21],
       connectionCount: connectionCount,
