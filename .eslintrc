@@ -1,6 +1,14 @@
-{ // https://eslint.org/docs/4.0.0/user-guide/configuring
+{
     "parserOptions": {
-        "sourceType": "module",
-        "ecmaVersion": 2017
+        "ecmaVersion": 2020,
+        "sourceType": "script"
+    },
+    "env": {
+        "node": true,
+        "es2020": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
     }
 }
