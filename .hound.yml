@@ -2,4 +2,6 @@ jshint:
   enabled: false
 eslint:
   enabled: true
+  # https://help.houndci.com/en/articles/2461415-supported-linters
+  version: 8.1.0
   config_file: .eslintrc
