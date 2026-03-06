@@ -2,7 +2,14 @@
  * Data utilities for device telemetry simulation
  * - Generate realistic sensor values with deterministic and random variations
  */
-/*jshint esversion: 6 */
+/*jshint esversion: 11 */
+
+/**
+ * Generate a random unique identifier
+ * @returns {number} A random unique ID
+ * @todo Use UUID library instead of Math.random()
+ */
+const randomUniqueId = () => Math.ceil(Math.random() * 100000000000);
 
 /**
  * Generate a deterministic base value for a sensor based on the device ID.
@@ -66,6 +73,7 @@ const generateHumidity = (deviceId, baseHumidity = 62.1, deviceVariation = 15, r
 
 // Exports
 module.exports = {
+    randomUniqueId,
     getDeterministicDeviceOffset,
     getRandomVariation,
     generateTemperature,
