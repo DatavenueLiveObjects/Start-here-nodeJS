@@ -59,7 +59,7 @@ function clientConnect() {
 
     client.subscribe(mqttTopic, function (err) {
       if (err) {
-        logger.info('FAILED to subscribe on [' + mqttTopic + ']> ' + err); // check mqtt rate limit
+        console.log('FAILED to subscribe on [' + mqttTopic + ']> ' + err); // check mqtt rate limit
       }
     });
     console.log(`MQTT::Subscribed to topic: ${mqttTopic}`);

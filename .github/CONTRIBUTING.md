@@ -8,9 +8,23 @@ If you're interested in an existing issue, please contribute by up-voting for it
 
 If you want to push some code :
 - fork and prepare a feature-git-branch, then create a [pull request](https://github.com/DatavenueLiveObjects/Start-here-nodeJS/pulls) that link your issue.
+- run linting: `npm run lint`
 - execute a minimal (manual) tests
 
 You could also be critic with existing ticket/PR : all constructive feedbacks are welcome.
+
+## Code Quality
+
+### Linting
+The project uses ESLint for code quality. Configuration files:
+- `eslint.config.js` - Local development (ESLint 10+, ES2020 support)
+- `.eslintrc` - Hound CI compatibility (ESLint 4.x)
+- `.hound.yml` - Hound CI configuration (jshint disabled, eslint enabled)
+
+Run linting locally:
+```bash
+npm run lint
+```
 
 ## HowTo execute tests
 * for now there is no automated test. PR are welcome.
