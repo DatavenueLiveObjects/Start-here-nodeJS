@@ -8,7 +8,7 @@
 
 // Region definitions
 const regionEurope = {
-    name: "Europe",
+    name: 'Europe',
     geoBounds: [
         [50.513427, -3.691406],
         [41.508577, 27.597656],
@@ -16,7 +16,7 @@ const regionEurope = {
 };
 
 const regionFrance = {
-    name: "France",
+    name: 'France',
     geoBounds: [
         [49.296472, -1.911621],
         [43.452919, 7.44873],
@@ -24,7 +24,7 @@ const regionFrance = {
 };
 
 const regionIdf = {
-    name: "Idf",
+    name: 'Idf',
     geoBounds: [
         [48.945955, 2.146454],
         [48.665571, 2.528229],
@@ -32,7 +32,7 @@ const regionIdf = {
 };
 
 const regionLyon = {
-    name: "Lyon",
+    name: 'Lyon',
     geoBounds: [
         [45.794818, 4.774228],
         [45.673563, 4.950331],
@@ -45,7 +45,7 @@ const regionLyon = {
  * @returns {{name: string, geoBounds: number[][]}} the validated region
  */
 const validRegion = region => {
-    const {"name": regionName, geoBounds } = region;
+    const {'name': regionName, geoBounds } = region;
     if (
         geoBounds.length !== 2 ||
         geoBounds[0].length !== 2 ||

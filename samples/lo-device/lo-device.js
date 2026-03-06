@@ -10,8 +10,6 @@
  - stdin menu allow to show device configuration, and to plan config/resourceUpdate failure
  **/
 /*jshint esversion: 11 */
-/*jshint expr: true */
-/*globals process */
 
 // requirements
 const Axios = require('axios');
@@ -21,7 +19,7 @@ const log4js = require('log4js');
 const readline = require('node:readline');
 
 const common = require('./Common.js');
-const {sleep, randomUniqueId} = require("./utils");
+const {sleep, randomUniqueId} = require('./utils');
 const {regionEurope, regionFrance, regionIdf, regionLyon, validRegion, randomLocationIn} = require('./geoUtils.js');
 const {generateTemperature, generateHumidity} = require('./dataUtils.js');
 
@@ -68,13 +66,13 @@ const validMqttUrl = url => {
 const validConfig = () => {
     if (process.env.LO_MQTT_ENDPOINT) {
         if (!process.env.LO_MQTT_DEVICE_API_KEY) {
-            console.log("please set LO_MQTT_DEVICE_API_KEY");
+            console.log('please set LO_MQTT_DEVICE_API_KEY');
         }
         if (!process.env.LO_MQTT_DEVICE_ID) {
-            console.log("please set LO_MQTT_DEVICE_ID");
+            console.log('please set LO_MQTT_DEVICE_ID');
         }
         if (!validMqttUrl(process.env.LO_MQTT_ENDPOINT)) {
-            console.log("please verify LO_MQTT_ENDPOINT", process.env.LO_MQTT_ENDPOINT);
+            console.log('please verify LO_MQTT_ENDPOINT', process.env.LO_MQTT_ENDPOINT);
         }
         return process.env.LO_MQTT_DEVICE_API_KEY && process.env.LO_MQTT_DEVICE_ID && validMqttUrl(process.env.LO_MQTT_ENDPOINT);
     }
@@ -102,8 +100,8 @@ let client;
 let deviceUrn = deviceUrnBase;
 let reconnectRetry = 0;
 
-let deviceConfig = common.loadJsonResource("./data/initialConfig.json");
-let deviceResources = common.loadJsonResource("./data/initialResource.json");
+let deviceConfig = common.loadJsonResource('./data/initialConfig.json');
+let deviceResources = common.loadJsonResource('./data/initialResource.json');
 
 let commandNoAnswer = 0;
 let configFailure = 0;
@@ -121,7 +119,7 @@ let geoloc = [45.4535, 4.5032];
 
 function getDeviceDataMessage() {
     const now = new Date().toISOString();
-    const messageModel = "nodeDeviceModeV1";
+    const messageModel = 'nodeDeviceModeV1';
     return {
         s: deviceUrn,
         ts: now,
@@ -253,7 +251,7 @@ function publishDeviceDataAsync() {
                 logger.error(`publish error: ${err}`);
                 reject(err);
             } else {
-                logger.debug(`publish completed`);
+                logger.debug('publish completed');
                 resolve();
             }
         });
@@ -266,7 +264,7 @@ function publishDeviceDataAsync() {
  * @param {number} nb - number of localized devices to generate
  */
 async function spawnDevicesAt(region, nb = 1) {
-    const {"name": regionName} = validRegion(region);
+    const {'name': regionName} = validRegion(region);
 
     for (let index = 0; index < nb; index++) {
         deviceUrn = randomDeviceUrn();
@@ -324,8 +322,8 @@ function downloadFileStep(
     logger.debug(`download resource ${resourceId} version ${resourceNewVersion} from ${resourceUrl}`);
     downloadFile(resourceUrl, 'lastFirmware.raw')
         .catch(err => {// download issues are just reported as warn
-            let details = "";
-            if ("EPROTO" === err.code) {
+            let details = '';
+            if ('EPROTO' === err.code) {
                 details += " protocol issue (seems that resource server don't match url scheme).";
             }
             logger.warn(`Download error code:${err.code} errno:${err.errno} ${details}`);
@@ -502,7 +500,7 @@ function clientConnect(byPassInit = false, onConnectCallback = null) {
             subscribeTopic(topicConfigUpdate);
             publishDeviceData();
 
-            if (process.env.LO_MQTT_SKIP_STARTUP_PUBLISH !== "true") {
+            if (process.env.LO_MQTT_SKIP_STARTUP_PUBLISH !== 'true') {
                 publishDeviceResources();
             }
 

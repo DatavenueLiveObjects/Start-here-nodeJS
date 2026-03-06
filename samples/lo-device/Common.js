@@ -1,4 +1,4 @@
-const path = require('path');
+// const path = require('path'); // Unused
 const fs = require('fs');
 
 // const __dirname = path.resolve();
