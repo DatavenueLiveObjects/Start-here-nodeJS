@@ -4,7 +4,7 @@
  * - Validation functions for region definitions
  * - Random geolocation generation within region bounds
  */
-/*jshint esversion: 6 */
+/*jshint esversion: 11 */
 
 // Region definitions
 const regionEurope = {

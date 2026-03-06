@@ -18,10 +18,10 @@ const fs = require('node:fs');
 const log4js = require('log4js');
 const readline = require('node:readline');
 
-const common = require('./Common.js');
-const {sleep, randomUniqueId} = require('./utils');
-const {regionEurope, regionFrance, regionIdf, regionLyon, validRegion, randomLocationIn} = require('./geoUtils.js');
-const {generateTemperature, generateHumidity} = require('./dataUtils.js');
+const {sleep} = require('./utils/time.js');
+const {loadJsonFile} = require('./utils/file.js');
+const {randomUniqueId, generateTemperature, generateHumidity} = require('./utils/data.js');
+const {regionEurope, regionFrance, regionIdf, regionLyon, validRegion, randomLocationIn} = require('./utils/geo.js');
 
 // logging
 const logger = log4js.getLogger();
@@ -100,8 +100,8 @@ let client;
 let deviceUrn = deviceUrnBase;
 let reconnectRetry = 0;
 
-let deviceConfig = common.loadJsonResource('./data/initialConfig.json');
-let deviceResources = common.loadJsonResource('./data/initialResource.json');
+let deviceConfig = loadJsonFile('./data/initialConfig.json');
+let deviceResources = loadJsonFile('./data/initialResource.json');
 
 let commandNoAnswer = 0;
 let configFailure = 0;
@@ -600,78 +600,78 @@ process.stdin.on('keypress', async (str, key) => {
     switch (
         key.name // input menu key dispatcher
         ) {
-            case 'h':
-                menu();
-                break;
-            case 'i':
-                deviceInfo();
-                break;
-            case 'x':
-                deviceInfoExtra();
-                break;
-            case 'k':
-                commandNoAnswer++;
-                console.log('.');
-                break;
-            case 'c':
-                configFailure++;
-                console.log('.');
-                break;
-            case 'r':
-                resourceFailure++;
-                console.log('.');
-                break;
-            case 'd':
-                withDeviceError = !withDeviceError;
-                console.log('.');
-                break;
-            case 'f':
-                withDownloadStep = !withDownloadStep;
-                console.log('.');
-                break;
-            case 'z':
-                withDownloadStep = true;
-                withDownloadExit = !withDownloadExit;
-                console.log('.');
-                break;
-            case 'n':
-                withNoAnswer = !withNoAnswer;
-                console.log('.');
-                break;
-            case 'o':
-                publishDeviceResources();
-                break;
-            case 'm':
-                publishDeviceData();
-                break;
-            case 'e':
-                await spawnDevicesAt(regionEurope);
-                break;
-            case 'l':
-                await spawnDevicesAt(regionFrance);
-                break;
-            case 'g':
-                await spawnDevicesAt(regionIdf);
-                break;
-            case 'a':
-                await spawnDevicesAt(regionLyon, 100);
-                break;
-            case 'b':
-                await spawnDevicesAt(regionFrance, 100);
-                break;
-            case 'j':
-                await spawnDevicesAt(regionEurope, 100);
-                break;
-            case 'p':
-                await spawnDevicesAt(regionEurope, 1000);
-                break;
-            case '*':
-                forceReconnect();
-                break;
-            case 'return':
-                break; // ignore
-            default:
-                console.log(`unknown command "${str}" (ctrl:${key.ctrl} name:${key.name})`);
+        case 'h':
+            menu();
+            break;
+        case 'i':
+            deviceInfo();
+            break;
+        case 'x':
+            deviceInfoExtra();
+            break;
+        case 'k':
+            commandNoAnswer++;
+            console.log('.');
+            break;
+        case 'c':
+            configFailure++;
+            console.log('.');
+            break;
+        case 'r':
+            resourceFailure++;
+            console.log('.');
+            break;
+        case 'd':
+            withDeviceError = !withDeviceError;
+            console.log('.');
+            break;
+        case 'f':
+            withDownloadStep = !withDownloadStep;
+            console.log('.');
+            break;
+        case 'z':
+            withDownloadStep = true;
+            withDownloadExit = !withDownloadExit;
+            console.log('.');
+            break;
+        case 'n':
+            withNoAnswer = !withNoAnswer;
+            console.log('.');
+            break;
+        case 'o':
+            publishDeviceResources();
+            break;
+        case 'm':
+            publishDeviceData();
+            break;
+        case 'e':
+            await spawnDevicesAt(regionEurope);
+            break;
+        case 'l':
+            await spawnDevicesAt(regionFrance);
+            break;
+        case 'g':
+            await spawnDevicesAt(regionIdf);
+            break;
+        case 'a':
+            await spawnDevicesAt(regionLyon, 100);
+            break;
+        case 'b':
+            await spawnDevicesAt(regionFrance, 100);
+            break;
+        case 'j':
+            await spawnDevicesAt(regionEurope, 100);
+            break;
+        case 'p':
+            await spawnDevicesAt(regionEurope, 1000);
+            break;
+        case '*':
+            forceReconnect();
+            break;
+        case 'return':
+            break; // ignore
+        default:
+            console.log(`unknown command "${str}" (ctrl:${key.ctrl} name:${key.name})`);
     }
 });
 

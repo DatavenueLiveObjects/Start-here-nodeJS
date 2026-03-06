@@ -4,7 +4,7 @@
         - subscribe to fifo and print incoming messages
         - ctrl+c to quit
 **/
-/*jshint esversion: 6 */
+/*jshint esversion: 11 */
 
 // requirements
 const mqtt = require('mqtt');
