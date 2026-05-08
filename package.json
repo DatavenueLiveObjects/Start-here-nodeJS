@@ -21,7 +21,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "axios": "^1.13.5",
+    "axios": "^1.15.2",
     "log4js": "^6.9.1",
     "mqtt": "^5.14.1",
     "node-global-proxy": "^1.0.1"
