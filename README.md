@@ -59,7 +59,7 @@ node samples/lo-device/lo-device.js
 
 ## License
 
-Copyright (c) 2015 — 2025 Orange
+Copyright (c) 2015 — 2026 Orange
 
 This code is released under the BSD3 license. See the `LICENSE` file for more information.
 
