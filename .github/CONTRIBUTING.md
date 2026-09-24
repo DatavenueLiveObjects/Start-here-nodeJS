@@ -32,7 +32,7 @@ npm run lint
 ## HowTo release using `gh`
 
 Install and create automatically a draft release version using [gh client](https://cli.github.com/)
-- the version tag must exist
+- the version tag must exist (ie. `npm version patch` has been done)
 
 Example to create v1.0.4
 ```bash
