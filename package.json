@@ -25,7 +25,7 @@
     "node-global-proxy": "^1.0.1"
   },
   "devDependencies": {
-    "axios": "^1.18.1",
+    "axios": "^1.20.0",
     "eslint": "^10.6.0",
     "mqtt": "^5.15.1"
   }
