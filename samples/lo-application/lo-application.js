@@ -9,6 +9,7 @@
 // requirements
 const mqtt = require('mqtt');
 const readline = require('readline');
+const configureProxy = require('../utils/proxy');
 const url =
   process.env.LO_MQTT_ENDPOINT ||
   process.argv[2] ||
@@ -29,13 +30,7 @@ function clientProxy() {
   if (http || https) {
     console.log('Used proxy http: ' + http);
     console.log('Used proxy https: ' + https);
-    const proxy = require('node-global-proxy').default;
-
-    proxy.setConfig({
-      http: http,
-      https: https,
-    });
-    proxy.start();
+    configureProxy(http, https);
   }
 }
 

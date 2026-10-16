@@ -17,6 +17,7 @@ const mqtt = require('mqtt');
 const fs = require('node:fs');
 const log4js = require('log4js');
 const readline = require('node:readline');
+const configureProxy = require('../utils/proxy');
 
 const {sleep} = require('./utils/time.js');
 const {loadJsonFile} = require('./utils/file.js');
@@ -467,9 +468,7 @@ function clientProxy() {
     const http = process.env.LO_MQTT_HTTP_PROXY;
     const https = process.env.LO_MQTT_HTTPS_PROXY;
     if (http || https) {
-        const proxy = require('node-global-proxy').default;
-        proxy.setConfig({http, https});
-        proxy.start();
+        configureProxy(http, https);
     }
 }
 

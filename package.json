@@ -22,8 +22,9 @@
   },
   "dependencies": {
     "axios": "^1.20.0",
-    "log4js": "^6.9.1",
-    "node-global-proxy": "^1.0.1"
+    "http-proxy-agent": "^7.0.2",
+    "https-proxy-agent": "^7.0.6",
+    "log4js": "^6.9.1"
   },
   "devDependencies": {
     "eslint": "^10.6.0",
