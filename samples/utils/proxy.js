@@ -1,5 +1,6 @@
 const http = require('node:http');
 const https = require('node:https');
+const {URL} = require('node:url');
 const {HttpProxyAgent} = require('http-proxy-agent');
 const {HttpsProxyAgent} = require('https-proxy-agent');
 
@@ -31,4 +32,14 @@ function configureProxy(httpProxy, httpsProxy) {
     configuredHttpsProxy = httpsProxy;
 }
 
-module.exports = configureProxy;
+function websocketOptions(url) {
+    const protocol = new URL(url).protocol;
+    if (protocol === 'wss:') {
+        return {agent: https.globalAgent};
+    }
+    if (protocol === 'ws:') {
+        return {agent: http.globalAgent};
+    }
+}
+
+module.exports = {configureProxy, websocketOptions};

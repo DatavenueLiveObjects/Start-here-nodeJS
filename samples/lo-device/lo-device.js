@@ -17,7 +17,7 @@ const mqtt = require('mqtt');
 const fs = require('node:fs');
 const log4js = require('log4js');
 const readline = require('node:readline');
-const configureProxy = require('../utils/proxy');
+const {configureProxy, websocketOptions} = require('../utils/proxy');
 
 const {sleep} = require('./utils/time.js');
 const {loadJsonFile} = require('./utils/file.js');
@@ -483,6 +483,7 @@ function clientConnect(byPassInit = false, onConnectCallback = null) {
         password: apiKey,
         protocolId: 'MQIsdp',
         protocolVersion: 3,
+        wsOptions: websocketOptions(serverURL),
         rejectUnauthorized: false,
         keepAlive: 30,
         reconnectPeriod: MQTT_RECONNECT_PERIOD_MS,

@@ -9,7 +9,7 @@
 // requirements
 const mqtt = require('mqtt');
 const readline = require('readline');
-const configureProxy = require('../utils/proxy');
+const {configureProxy, websocketOptions} = require('../utils/proxy');
 const url =
   process.env.LO_MQTT_ENDPOINT ||
   process.argv[2] ||
@@ -44,6 +44,7 @@ function clientConnect() {
     password: apiKey,
     protocolId: 'MQIsdp',
     protocolVersion: 3,
+    wsOptions: websocketOptions(url),
     rejectUnauthorized: false,
     keepAlive: 30,
   });
